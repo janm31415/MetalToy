@@ -18,6 +18,6 @@ vertex float4 vertex_shader(const device packed_float3 *vertices [[buffer(0)]], 
   return position;
 }
 
-fragment half4 fragment_shader() {
-  return half4(1, 1, 0, 1);
+fragment half4 fragment_shader(const float4 pos [[stage_in]],  constant Constants& constants [[buffer(1)]]) {
+  return half4(1-constants.animateBy, constants.animateBy, 0, 1);
 }
