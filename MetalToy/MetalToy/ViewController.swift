@@ -12,9 +12,25 @@ class ViewController: UIViewController {
   
   @IBOutlet weak var textView: UITextView!
   
+  var height: CGFloat = 0.0
+  
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+    height = self.view.frame.size.height
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(sender:)), name: UIResponder.keyboardWillShowNotification, object: nil);
+    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(sender:)), name: UIResponder.keyboardWillHideNotification, object: nil);
+    textView.adjustsFontForContentSizeCategory = true
+  }
+  
+  @objc func keyboardWillShow(sender: NSNotification) {
+    let info = sender.userInfo!
+    let keyboardFrame: CGRect = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+    self.view.frame.size.height = height - keyboardFrame.height
+  }
+  
+  @objc func keyboardWillHide(sender: NSNotification) {
+    self.view.frame.size.height = height
   }
   
   @IBAction func onLoad(_ sender: Any) {
