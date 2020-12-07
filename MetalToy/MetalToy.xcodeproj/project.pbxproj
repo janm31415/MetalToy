@@ -14,6 +14,7 @@
 		B7A6E142257E548C00A170F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7A6E141257E548C00A170F6 /* Assets.xcassets */; };
 		B7A6E145257E548C00A170F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B7A6E143257E548C00A170F6 /* LaunchScreen.storyboard */; };
 		B7A6E14F257E5F1300A170F6 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A6E14E257E5F1300A170F6 /* Renderer.swift */; };
+		B7A6E152257E63F900A170F6 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = B7A6E151257E63F900A170F6 /* Shader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		B7A6E144257E548C00A170F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B7A6E146257E548C00A170F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B7A6E14E257E5F1300A170F6 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		B7A6E151257E63F900A170F6 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				B7A6E138257E548900A170F6 /* AppDelegate.swift */,
 				B7A6E13A257E548900A170F6 /* SceneDelegate.swift */,
 				B7A6E13C257E548900A170F6 /* ViewController.swift */,
+				B7A6E151257E63F900A170F6 /* Shader.metal */,
 				B7A6E13E257E548900A170F6 /* Main.storyboard */,
 				B7A6E141257E548C00A170F6 /* Assets.xcassets */,
 				B7A6E143257E548C00A170F6 /* LaunchScreen.storyboard */,
@@ -143,6 +146,7 @@
 				B7A6E14F257E5F1300A170F6 /* Renderer.swift in Sources */,
 				B7A6E13D257E548900A170F6 /* ViewController.swift in Sources */,
 				B7A6E139257E548900A170F6 /* AppDelegate.swift in Sources */,
+				B7A6E152257E63F900A170F6 /* Shader.metal in Sources */,
 				B7A6E13B257E548900A170F6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
