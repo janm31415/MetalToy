@@ -8,20 +8,20 @@
 import MetalKit
 
 class Renderer : NSObject {
-
+  
   let device: MTLDevice
   let commandQueue: MTLCommandQueue?
   
   var vertices: [Float] = [
-  -1, 1, 0,
-  -1, -1, 0,
-  1, -1, 0,
-  1, 1, 0,
+    -1, 1, 0,
+    -1, -1, 0,
+    1, -1, 0,
+    1, 1, 0,
   ]
   
   var indices: [UInt16] = [
-  0,1,2,
-  2,3,0]
+    0,1,2,
+    2,3,0]
   
   var pipelineState: MTLRenderPipelineState?
   var vertexBuffer: MTLBuffer?
@@ -38,12 +38,20 @@ class Renderer : NSObject {
   
   var time: Float = 0
   
-  init(device: MTLDevice, shaderText: String?) {
+  init(device: MTLDevice, shaderText: String?) throws {
     self.device = device
     self.commandQueue = device.makeCommandQueue()
     super.init()
     buildModel()
-    buildPipelineState(shaderText: shaderText)
+    do {
+      try buildPipelineState(shaderText: shaderText)
+    } catch (let error as MTLLibraryError)
+    {
+      throw error
+    }
+    catch {
+    
+    }
   }
   
   private func buildModel() {
@@ -51,10 +59,10 @@ class Renderer : NSObject {
     indexBuffer = device.makeBuffer(bytes: indices, length: indices.count * MemoryLayout<UInt16>.size, options: [])
   }
   
-  private func buildPipelineState(shaderText: String?) {
+  private func buildPipelineState(shaderText: String?) throws {
     
     let header = NSString.init(stringLiteral:
-"""
+                                """
 using namespace metal;
 
 struct ShaderInput {
@@ -72,23 +80,23 @@ vertex VertexOut vertex_shader(const device packed_float3 *vertices [[buffer(0)]
   return out;
 }
 """)
-let footer = NSString.init(stringLiteral:
-"""
+    let footer = NSString.init(stringLiteral:
+                                """
 fragment half4 fragment_shader(const VertexOut pos [[stage_in]], constant ShaderInput& input [[buffer(1)]]) {
   float4 fragColor;
   mainImage(fragColor, pos.position.xy, input.iTime, input.iResolution);
   return half4(fragColor[0], fragColor[1], fragColor[2], 1);
 }
 """)
-
-  var shader: NSString = ""
-     
-  if let txt = shaderText {
-    shader = NSString(format: "%@%@%@", header, txt, footer)
+    
+    var shader: NSString = ""
+    
+    if let txt = shaderText {
+      shader = NSString(format: "%@%@%@", header, txt, footer)
     }
-
-let string = NSString.init(stringLiteral:
-"""
+    
+    let string = NSString.init(stringLiteral:
+                                """
 using namespace metal;
 
 struct ShaderInput {
@@ -181,15 +189,14 @@ fragment half4 fragment_shader(const VertexOut pos [[stage_in]], constant Shader
   return half4(fragColor[0], fragColor[1], fragColor[2], 1);
 }
 """)
-
-
+    
+    
     let library: MTLLibrary
     do {
       library = try device.makeLibrary(source: shader as String, options: nil)
     }
     catch (let error as MTLLibraryError) {
-      print(error)
-      return
+      throw error
     }
     catch {
       print("unknown error")
@@ -219,9 +226,9 @@ extension Renderer: MTKViewDelegate {
   
   func draw(in view: MTKView) {
     guard let drawable = view.currentDrawable,
-      let pipelineState = pipelineState,
-      let indexBuffer = indexBuffer,
-      let descriptor = view.currentRenderPassDescriptor else {
+          let pipelineState = pipelineState,
+          let indexBuffer = indexBuffer,
+          let descriptor = view.currentRenderPassDescriptor else {
       return
     }
     
