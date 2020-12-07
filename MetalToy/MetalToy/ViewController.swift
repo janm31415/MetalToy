@@ -6,35 +6,31 @@
 //
 
 import UIKit
-import MetalKit
 
-enum Colors {
-  static let green = MTLClearColor(red: 0.0,
-                                   green: 0.4,
-                                   blue: 0.21,
-                                   alpha: 1.0)
-  
-}
 
 class ViewController: UIViewController {
   
-  var renderer: Renderer?
-  
-  var metalView: MTKView {
-    return view as! MTKView
-  }
+  @IBOutlet weak var textView: UITextView!
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    metalView.device = MTLCreateSystemDefaultDevice()
-    metalView.clearColor = Colors.green
-    if let device = metalView.device {
-      renderer = Renderer.init(device: device)
-      metalView.delegate = renderer
-    }
+   
+  }
+  
+  @IBAction func onLoad(_ sender: Any) {
   }
   
   
+  @IBAction func onSave(_ sender: Any) {
+  }
+  
+  @IBAction func onRun(_ sender: Any) {
+    DispatchQueue.main.async {
+      let shaderVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "shaderVC") as! ShaderViewController
+      shaderVC.setShader(text: self.textView.text)
+      self.present(shaderVC, animated: true)
+    }
+  }
 }
 
 

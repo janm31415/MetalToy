@@ -38,12 +38,12 @@ class Renderer : NSObject {
   
   var time: Float = 0
   
-  init(device: MTLDevice) {
+  init(device: MTLDevice, shaderText: String?) {
     self.device = device
     self.commandQueue = device.makeCommandQueue()
     super.init()
     buildModel()
-    buildPipelineState()
+    buildPipelineState(shaderText: shaderText)
   }
   
   private func buildModel() {
@@ -51,9 +51,43 @@ class Renderer : NSObject {
     indexBuffer = device.makeBuffer(bytes: indices, length: indices.count * MemoryLayout<UInt16>.size, options: [])
   }
   
-  private func buildPipelineState() {
+  private func buildPipelineState(shaderText: String?) {
     
-    let string = NSString.init(stringLiteral:
+    let header = NSString.init(stringLiteral:
+"""
+using namespace metal;
+
+struct ShaderInput {
+  float iTime;
+  packed_float3 iResolution;
+};
+
+struct VertexOut {
+  float4 position [[position]];
+};
+
+vertex VertexOut vertex_shader(const device packed_float3 *vertices [[buffer(0)]], uint vertexId [[ vertex_id ]]) {
+  VertexOut out;
+  out.position = float4(vertices[vertexId], 1);
+  return out;
+}
+""")
+let footer = NSString.init(stringLiteral:
+"""
+fragment half4 fragment_shader(const VertexOut pos [[stage_in]], constant ShaderInput& input [[buffer(1)]]) {
+  float4 fragColor;
+  mainImage(fragColor, pos.position.xy, input.iTime, input.iResolution);
+  return half4(fragColor[0], fragColor[1], fragColor[2], 1);
+}
+""")
+
+  var shader: NSString = ""
+     
+  if let txt = shaderText {
+    shader = NSString(format: "%@%@%@", header, txt, footer)
+    }
+
+let string = NSString.init(stringLiteral:
 """
 using namespace metal;
 
@@ -147,9 +181,11 @@ fragment half4 fragment_shader(const VertexOut pos [[stage_in]], constant Shader
   return half4(fragColor[0], fragColor[1], fragColor[2], 1);
 }
 """)
+
+
     let library: MTLLibrary
     do {
-      library = try device.makeLibrary(source: string as String, options: nil)
+      library = try device.makeLibrary(source: shader as String, options: nil)
     }
     catch (let error as MTLLibraryError) {
       print(error)
