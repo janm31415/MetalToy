@@ -18,45 +18,23 @@ enum Colors {
 
 class ViewController: UIViewController {
   
+  var renderer: Renderer?
+  
   var metalView: MTKView {
     return view as! MTKView
   }
   
-  var device: MTLDevice!
-  var commandQueue: MTLCommandQueue!
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     metalView.device = MTLCreateSystemDefaultDevice()
-    device = metalView.device
-    
     metalView.clearColor = Colors.green
-    metalView.delegate = self
-    commandQueue = device.makeCommandQueue()
-    
+    if let device = metalView.device {
+      renderer = Renderer.init(device: device)
+      metalView.delegate = renderer
+    }
   }
   
   
 }
 
-extension ViewController: MTKViewDelegate {
-  func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-    
-  }
-  
-  func draw(in view: MTKView) {
-    guard let drawable = view.currentDrawable, let descriptor = view.currentRenderPassDescriptor else {
-      return
-    }
-    
-    let commandBuffer = commandQueue.makeCommandBuffer()
-    
-    let commandEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: descriptor)
-    
-    commandEncoder?.endEncoding()
-    commandBuffer?.present(drawable)
-    commandBuffer?.commit()
-  }
-  
-}
 
