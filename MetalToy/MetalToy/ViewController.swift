@@ -10,9 +10,6 @@ import UniformTypeIdentifiers
 
 class ViewController: UIViewController {
   
-  var loading = false
-  var saving = false
-  
   @IBOutlet weak var textView: UITextView!
   
   override func viewDidLoad() {
@@ -21,8 +18,6 @@ class ViewController: UIViewController {
   }
   
   @IBAction func onLoad(_ sender: Any) {
-    loading = true
-    saving = false
     DispatchQueue.main.async {
       let documentPicker =
         UIDocumentPickerViewController(forOpeningContentTypes: [UTType.item]	)
@@ -33,13 +28,12 @@ class ViewController: UIViewController {
   
   
   @IBAction func onSave(_ sender: Any) {
-    loading = false
-    saving = true
     DispatchQueue.main.async {
-      let documentPicker =
-        UIDocumentPickerViewController(forOpeningContentTypes: [UTType.item]	)
-      documentPicker.delegate = self
-      self.present(documentPicker, animated: true, completion: nil)
+      let documentBrowser =
+        UIDocumentBrowserViewController(forOpening: [UTType.item]	)
+      documentBrowser.allowsDocumentCreation = true
+      documentBrowser.delegate = self
+      self.present(documentBrowser, animated: true, completion: nil)
     }
   }
   
@@ -55,23 +49,22 @@ class ViewController: UIViewController {
 extension ViewController: UIDocumentPickerDelegate {
   
   public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-   
+    
     let file = urls[0]
     
-    if (self.loading) {
-      guard file.startAccessingSecurityScopedResource() else {
-        // Handle the failure here.
-        return
-      }
+    guard file.startAccessingSecurityScopedResource() else {
+      // Handle the failure here.
+      return
+    }
     do {
       let data = try Data(contentsOf: file, options: .mappedIfSafe)
       let str = String(decoding: data, as: UTF8.self)
       self.textView.text = str
-      }
+    }
     catch {
       return
     }
-    }
+    do { file.stopAccessingSecurityScopedResource() }
   }
   
   public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
@@ -79,4 +72,28 @@ extension ViewController: UIDocumentPickerDelegate {
   }
 }
 
+extension ViewController: UIDocumentBrowserViewControllerDelegate {
+  
+  func documentBrowser(_ controller: UIDocumentBrowserViewController, didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void)
+  {
+    
+    let tempDir = FileManager.default.temporaryDirectory
+    let url = tempDir.appendingPathComponent("MetalShader.frag")
+    
+    do {
+      try self.textView.text.write(to: url, atomically: false, encoding: .utf8)
+    }
+    catch {
+      // Cancel document creation.
+      importHandler(nil, .none)
+      return
+    }
+    
+    // Pass the document's temporary URL to the import handler.
+    importHandler(url, .move)
+    
+    self.dismiss(animated: true)
+  }
+  
+}
 
