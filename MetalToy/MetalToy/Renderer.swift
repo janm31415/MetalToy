@@ -72,10 +72,39 @@ vertex VertexOut vertex_shader(const device packed_float3 *vertices [[buffer(0)]
   return out;
 }
 
+void mainImage(thread float4& fragColor, float2 fragCoord, float iTime, float3 iResolution) {
+  float2 uv = fragCoord / iResolution.xy;
+  float3 col = 0.5 + 0.5*cos(iTime + uv.xyx + float3(0, 2, 4));
+  
+  fragColor = float4(col[0], col[1], col[2], 1);
+}
+
+void mainImage2(thread float4& fragColor, float2 fragCoord, float iTime, float3 iResolution) {
+  float2 uv = (fragCoord / iResolution.xy - 0.5)*8.0;
+  float i0 = 0.8;
+  float i1 = 0.8;
+  float i2 = 0.75;
+  float i4 = 0.0;
+  for (int s = 0; s < 7; s++)
+  {
+    float2 r = float2(cos(uv.y*i0-i4-iTime/i1), sin(uv.x*i0-i4+iTime/i1))/i2;
+    r = r + float2(-r.y, r.x)*0.3;
+    uv.xy += r;
+    i0 *= 1.93;
+    i1 *= 1.15;
+    i2 *= 1.7;
+    i4 += 0.05+0.1*iTime*i1;
+  }
+  float b = sin(uv.x - iTime)*0.5+0.5;
+  float r = sin(uv.y + iTime)*0.5 + 0.5;
+  float g = sin((uv.x + uv.y + sin(iTime*0.5))*0.5)*0.5 + 0.5;
+  fragColor = float4(r, g, b, 1);
+}
+
 fragment half4 fragment_shader(const VertexOut pos [[stage_in]], constant ShaderInput& input [[buffer(1)]]) {
-  float2 uv = pos.position.xy / input.iResolution.xy;
-  float3 col = 0.5 + 0.5*cos(input.iTime + uv.xyx + float3(0, 2, 4));
-  return half4(col[0], col[1], col[2], 1);
+  float4 fragColor;
+  mainImage2(fragColor, pos.position.xy, input.iTime, input.iResolution);
+  return half4(fragColor[0], fragColor[1], fragColor[2], 1);
 }
 """)
     let library: MTLLibrary
