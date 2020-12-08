@@ -1,3 +1,6 @@
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+// Created by S.Guillitte 
+
 void mainImage(thread float4& fragColor, float2 fragCoord, float iTime, float3 iResolution) {
   float2 uv = (fragCoord / iResolution.xy - 0.5)*8.0;
   float i0 = 0.8;
