@@ -94,7 +94,7 @@ extension ViewController: UIDocumentBrowserViewControllerDelegate {
   {
     
     let tempDir = FileManager.default.temporaryDirectory
-    let url = tempDir.appendingPathComponent("MetalShader.frag")
+    let url = tempDir.appendingPathComponent("MetalToy.metal")
     
     do {
       try self.textView.text.write(to: url, atomically: false, encoding: .utf8)
